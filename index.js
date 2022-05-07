@@ -87,7 +87,14 @@ async function run() {
         app.get('/', (req, res) => {
             res.send("I am running")
         })
-
+        // get my Items
+        app.get('/myItems', async (req, res) => {
+            const user=req.query.email;
+            const query = {email:user};
+            const cursor = inventoryCollection.find(query)
+            const myItems = await cursor.toArray();
+            res.send(myItems)
+        })
         //pagination
         app.get('/inventoryCount', async (req, res) => {
             const count = await inventoryCollection.estimatedDocumentCount();
