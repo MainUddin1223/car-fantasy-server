@@ -9,7 +9,7 @@ app.use(express.json())
 
 
 
-const uri = "mongodb+srv://inventory:7FiIXy03LLtEUnP0@cluster0.t2vfs.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.t2vfs.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
@@ -21,13 +21,22 @@ async function run() {
         const ownerCollection = client.db('car-fantasy').collection('owner');
         //inventory api
         app.get('/inventory', async (req, res) => {
-
+            const page = parseInt(req.query.page);
+            const size = parseInt(req.query.size);
             const query = {};
             const cursor = inventoryCollection.find(query)
-            const inventoryItems = await cursor.toArray();
+            let inventoryItems;
+            if (page || size) {
+                inventoryItems = await cursor.skip(page * size).limit(size).toArray()
+            }
+            else {
+                inventoryItems = await cursor.toArray();
+
+            }
             res.send(inventoryItems)
 
         })
+
         //manage item API
         app.get('/inventory/:id', async (req, res) => {
             const id = req.params.id;
@@ -72,13 +81,21 @@ async function run() {
             const cursor = ownerCollection.find(query);
             const owner = await cursor.toArray();
             res.send(owner)
-            console.log('hello');
         })
 
         //testing
         app.get('/', (req, res) => {
             res.send("I am running")
         })
+
+        //pagination
+        app.get('/inventoryCount', async (req, res) => {
+            const count = await inventoryCollection.estimatedDocumentCount();
+            res.send({ count });
+
+        })
+
+
 
     } finally {
         // await client.close();
@@ -90,5 +107,3 @@ run().catch(console.dir);
 app.listen(port, () => {
     console.log("hello world");
 })
-//inventory
-//7FiIXy03LLtEUnP0
