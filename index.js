@@ -23,12 +23,10 @@ function verifyJwt(req, res, next) {
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
         if (err) {
             return res.status(403).send({ message: 'Access forbidden' })
-
         }
         req.decoded = decoded;
         next()
     })
-
 }
 
 
@@ -59,19 +57,18 @@ async function run() {
             }
             else {
                 inventoryItems = await cursor.toArray();
-
             }
-            res.send(inventoryItems)
+            res.send(inventoryItems);
 
-        })
+        });
 
         //manage item API
         app.get('/inventory/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const result = await inventoryCollection.findOne(query)
+            const result = await inventoryCollection.findOne(query);
             res.send(result)
-        })
+        });
         // update items
         app.put('/inventory/:id', async (req, res) => {
             const id = req.params.id;
@@ -85,13 +82,13 @@ async function run() {
                     quantity: updateItems.number
                 }
             }
-            const result = await inventoryCollection.updateOne(filter, updateDoc, options)
-            res.send(result)
+            const result = await inventoryCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
         })
         //post Item
         app.post('/inventory', async (req, res) => {
             const newService = req.body;
-            const result = await inventoryCollection.insertOne(newService)
+            const result = await inventoryCollection.insertOne(newService);
         })
         //delete items
         app.delete('/inventory/:id', async (req, res) => {
@@ -99,7 +96,7 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const result = await inventoryCollection.deleteOne(query);
             if (result.deletedCount === 1) {
-                res.send(result)
+                res.send(result);
             }
         })
         //owner data
