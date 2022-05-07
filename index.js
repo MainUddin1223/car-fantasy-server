@@ -68,7 +68,7 @@ async function run() {
             const query = { _id: ObjectId(id) };
             const result = await inventoryCollection.findOne(query);
             res.send(result)
-        });
+        })
         // update items
         app.put('/inventory/:id', async (req, res) => {
             const id = req.params.id;
